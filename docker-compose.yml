@@ -1,0 +1,54 @@
+services:
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      CLUSTER_ID: "kraft-local"
+      KAFKA_NODE_ID: 1
+
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+
+    volumes:
+      - kafka_kraft:/var/lib/kafka/data
+
+    
+  backend:
+    build:
+      context: ./transactions-microservice
+    container_name: transactions-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./transactions-microservice:/app
+      - /app/node_modules
+    env_file:
+      - ./transactions-microservice/.env
+    depends_on:
+      - db
+      - kafka
+
+  db:
+    image: postgres:16-alpine
+    container_name: transactions-db
+    env_file:
+      - ./transactions-microservice/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db_data:
+  kafka_kraft:
