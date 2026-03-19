@@ -1,0 +1,9 @@
+services:
+  backend:
+    build: .
+    container_name: transactions-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app       # Mount local folder for hot reload
+      - /app/node_modules
