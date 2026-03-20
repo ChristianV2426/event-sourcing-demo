@@ -22,6 +22,16 @@ services:
     volumes:
       - kafka_kraft:/var/lib/kafka/data
 
+  db:
+    image: postgres:16-alpine
+    container_name: transactions-db
+    env_file:
+      - ./transactions-microservice/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d/init.sql:/docker-entrypoint-initdb.d/init.sql
     
   backend:
     build:
@@ -37,17 +47,16 @@ services:
     depends_on:
       - db
       - kafka
-
-  db:
-    image: postgres:16-alpine
-    container_name: transactions-db
-    env_file:
-      - ./transactions-microservice/.env
-    ports:
-      - "5432:5432"
+  
+  notifier:
+    build:
+      context: ./notifications-microservice
+    container_name: notification-service
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./docker-entrypoint-initdb.d/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./notifications-microservice:/app
+    depends_on:
+      - kafka
+
 
 volumes:
   db_data:

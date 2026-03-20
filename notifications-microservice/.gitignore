@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+*.env
+.env
+venv/
+ENV/
+.envrc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Docker
+*.dockerfile
+*.env
+
+# Logs
+*.log
+
+# Test
+htmlcov/
+.coverage
+.cache/
+pytest_cache/
+
+# Misc
+*.swp
+*.swo
+
+# Ignore local settings
+settings.py

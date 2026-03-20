@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { insertEvent, getAllAccounts, getBalance, accountExists, Event } from "../models/eventModel";
+import { publishEvent } from "../kafka/eventPublisher";
 
 
 export const createAccount = async (req: Request, res: Response) => {
@@ -11,6 +12,12 @@ export const createAccount = async (req: Request, res: Response) => {
 
     const event: Event = { account_id, event_type: "ACCOUNT_CREATED", event_data: {} };
     await insertEvent(event);
+
+    await publishEvent(
+    account_id,
+    event.event_type,
+    event.event_data
+    );
 
     res.status(201).json({ account_id });
   } catch (err) {
@@ -58,6 +65,12 @@ export const performTransaction = async (req: Request, res: Response) => {
     };
 
     await insertEvent(event);
+
+    await publishEvent(
+    account_id,
+    event.event_type,
+    event.event_data
+    );
 
     const newBalance = await getBalance(account_id);
     res.status(201).json({ balance: newBalance });
